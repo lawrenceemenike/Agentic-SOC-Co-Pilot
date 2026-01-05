@@ -30,26 +30,26 @@ graph TD
             Orchestrator --> NodeV[Verifier Agent]
         end
         
-        subgraph "Memory & Knowledge"
-            NodeA <-->|Hybrid Search| Retriever[Context Retriever]
-            Retriever <--> VectorDB[(ChromaDB - Long Term)]
-            Orchestrator <--> Redis[(Redis - Short Term)]
-            Governance[Memory Governance] -.->|Approval| VectorDB
+    subgraph "Memory & Knowledge"
+            NodeA <-->|Hybrid Search| Retriever["Context Retriever"]
+            Retriever <--> VectorDB[("ChromaDB - Long Term")]
+            Orchestrator <--> Redis[("Redis - Short Term")]
+            Governance["Memory Governance"] -.->|Approval| VectorDB
         end
         
         subgraph "Inference & Controls"
-            NodeA & NodeP & NodeV --> Adapter[Model Adapter]
-            Adapter --> Accountant[Token Accountant]
-            Accountant --> Budget[Budget Policy]
-            Accountant --> Anomaly[Anomaly Detector]
-            Adapter --> Model[Local LLM (GPT4All)]
+            NodeA & NodeP & NodeV --> Adapter["Model Adapter"]
+            Adapter --> Accountant["Token Accountant"]
+            Accountant --> Budget["Budget Policy"]
+            Accountant --> Anomaly["Anomaly Detector"]
+            Adapter --> Model["Local LLM (GPT4All)"]
         end
     end
     
     subgraph "Observability & Audit"
-        Accountant --> Metrics[Prometheus]
-        API --> Audit[Audit Logger (Postgres)]
-        Metrics --> Dash[Grafana Dashboard]
+        Accountant --> Metrics["Prometheus"]
+        API --> Audit["Audit Logger (Postgres)"]
+        Metrics --> Dash["Grafana Dashboard"]
     end
 ```
 
