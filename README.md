@@ -1,8 +1,10 @@
 # Secure Agentic SOC Co-Pilot
 
-An *Agentic Security Operations Center (SOC)** assistant designed to run **entirely locally** (air-gapped) with strict **FinOps** and **Security Governance** controls.
+A production-grade, **Agentic Security Operations Center (SOC)** assistant designed to run **entirely locally** (air-gapped) with strict **FinOps** and **Security Governance** controls.
 
 This project demonstrates how to build a "Safe & Solvent" AI system that can autonomously analyze threats, propose remediations, and adhere to strict financial and policy boundaries.
+
+📘 **[Read the Detailed Architecture Whitepaper](docs/architecture.md)**
 
 ---
 
