@@ -1,6 +1,6 @@
 # Secure Agentic SOC Co-Pilot: Product Strategy & Execution Plan
 
-**Version:** 1.0
+**Version:** 1.1
 **Date:** 2026-01-05
 **Author:** AI Product Management Team
 **Target Audience:** CISO, VP of SecOps, CFO
@@ -13,7 +13,92 @@ The **Secure Agentic SOC Co-Pilot** is an on-premise, autonomous AI analyst that
 
 ---
 
-## 2. Second-Order Effects & System Thinking
+## 2. Product Vision Board
+
+| Section | Description |
+| :--- | :--- |
+| **Vision** | To create the world's most trusted, autonomous "Digital SOC Analyst" that empowers human teams to focus on high-value threat hunting by automating the mundane with zero risk of hallucination or data leakage. |
+| **Target Group** | **Primary**: Tier-1 SOC Analysts (overwhelmed by alerts). <br> **Secondary**: CISOs (worried about budget & breaches). <br> **Tertiary**: Compliance Officers (worried about AI governance). |
+| **Needs** | **Analyst**: "Stop the noise. Tell me what matters." <br> **CISO**: "Scale my team without hiring. Don't leak my data." <br> **Compliance**: "Prove the AI didn't hallucinate. Show me the audit trail." |
+| **Product** | An air-gapped, agentic AI system that ingests alerts, retrieves internal SOPs, plans remediations, and verifies its own safety before asking for human approval. |
+| **Business Goals** | **1. Efficiency**: Reduce MTTR by 70%. <br> **2. Cost**: <$0.10 per alert analyzed. <br> **3. Safety**: 0% Policy Violations in Production. |
+
+---
+
+## 3. Epics & User Stories
+
+### Epic 1: AI Security & Governance (The "Safe Brain")
+**Goal**: Ensure the AI cannot be tricked, hijacked, or induced to hallucinate dangerous actions.
+
+*   **Story 1.1: Prompt Injection Defense**
+    *   **As a** Security Engineer,
+    *   **I want** the system to sanitize all incoming alert logs and block known injection patterns (e.g., "Ignore previous instructions"),
+    *   **So that** an attacker cannot hijack the AI via a malicious log entry.
+    *   **Acceptance Criteria**:
+        *   System must strip control characters and HTML tags.
+        *   System must block 100% of attacks in the `tests/security/corpus/injection.yaml` dataset.
+        *   Verifier must return `FAIL` verdict for any input containing "sudo", "rm -rf", or "eval(".
+
+*   **Story 1.2: Groundedness Verification (Anti-Hallucination)**
+    *   **As a** Compliance Officer,
+    *   **I want** the AI to cite the specific SOP or Log Evidence for every step in its remediation plan,
+    *   **So that** I can verify it isn't inventing procedures.
+    *   **Acceptance Criteria**:
+        *   Every `Remediation` object must contain a `provenance` list.
+        *   The `Verifier` agent must calculate a "Groundedness Score" using a Cross-Encoder.
+        *   If Score < 0.7, the plan is automatically rejected with "Insufficient Evidence".
+
+*   **Story 1.3: Immutable Audit Trail**
+    *   **As an** Auditor,
+    *   **I want** a cryptographic log of the exact Prompt, Model Version, and Output for every decision,
+    *   **So that** I can reconstruct the incident during a forensic investigation.
+    *   **Acceptance Criteria**:
+        *   All decisions are logged to Postgres `audit_log` table.
+        *   Log includes `prompt_hash` (SHA-256).
+        *   Logs are write-only (cannot be modified by the Agent).
+
+### Epic 2: FinOps & Cost Control (The "Solvent Brain")
+**Goal**: Prevent "Bill Shock" and ensure unit economics make sense.
+
+*   **Story 2.1: Hard Budget Cap**
+    *   **As a** CFO,
+    *   **I want** to set a hard daily limit (e.g., $5.00) on AI compute,
+    *   **So that** a bug doesn't bankrupt the department.
+    *   **Acceptance Criteria**:
+        *   `TokenAccountant` tracks cumulative spend in Redis.
+        *   If spend > Limit, API returns `429 Too Many Requests`.
+        *   Admin receives an email alert at 80% usage.
+
+*   **Story 2.2: Anomaly Detection**
+    *   **As a** DevOps Engineer,
+    *   **I want** to detect if an agent gets stuck in an infinite loop,
+    *   **So that** we don't waste resources on broken workflows.
+    *   **Acceptance Criteria**:
+        *   System calculates Z-Score of token usage per request.
+        *   If Request Tokens > 3x Standard Deviation, kill the process and log "Anomaly Detected".
+
+### Epic 3: Autonomous Analysis (The "Smart Brain")
+**Goal**: Replicate the workflow of a human analyst.
+
+*   **Story 3.1: Context Retrieval**
+    *   **As an** Analyst,
+    *   **I want** the AI to automatically fetch the relevant "Phishing SOP" when analyzing a suspicious email,
+    *   **So that** it follows our standard procedures.
+    *   **Acceptance Criteria**:
+        *   Retriever uses Hybrid Search (Vector + Keyword) to find docs.
+        *   Retrieved context is injected into the System Prompt.
+
+*   **Story 3.2: Remediation Planning**
+    *   **As an** Analyst,
+    *   **I want** a structured JSON plan (e.g., "Step 1: Block IP", "Step 2: Reset Password"),
+    *   **So that** I can execute it with one click (or approve it).
+    *   **Acceptance Criteria**:
+        *   Output must be valid JSON matching `Remediation` schema.
+        *   Plan must be broken down into atomic steps.
+
+---
+
+## 4. Second-Order Effects & System Thinking
 
 | Effect | Description | Mitigation Strategy |
 | :--- | :--- | :--- |
@@ -24,7 +109,7 @@ The **Secure Agentic SOC Co-Pilot** is an on-premise, autonomous AI analyst that
 
 ---
 
-## 3. Value Hypothesis & ROI
+## 5. Value Hypothesis & ROI
 
 ### The Problem: "The SOC Burnout Spiral"
 *   **Volume**: 10,000+ alerts/day.
@@ -43,7 +128,7 @@ $$ \text{ROI} = \frac{(\text{Hours Saved} \times \text{Analyst Rate}) - (\text{C
 
 ---
 
-## 4. User & Buyer Journey
+## 6. User & Buyer Journey
 
 ### Target Persona: "Alex, the Tier-1 Analyst"
 *   **Pain**: Drowning in "False Positive" phishing emails.
@@ -62,27 +147,27 @@ $$ \text{ROI} = \frac{(\text{Hours Saved} \times \text{Analyst Rate}) - (\text{C
 
 ---
 
-## 5. Product Requirements (PRD-Lite)
+## 7. Product Requirements (PRD-Lite)
 
-### 5.1 Functional Requirements
+### 7.1 Functional Requirements
 *   **Ingest**: Must accept JSON webhooks from Splunk, CrowdStrike, SentinelOne.
 *   **Analysis**: Must correlate alert with internal SOPs (RAG).
 *   **Planning**: Must generate a JSON-structured remediation plan.
 *   **Verification**: Must automatically check plans for dangerous commands (`rm -rf`).
 *   **Approval**: Must require RBAC-signed approval for any state-changing action.
 
-### 5.2 Non-Functional Requirements
+### 7.2 Non-Functional Requirements
 *   **Latency**: < 30 seconds from Ingest to Plan.
 *   **Data Residency**: 100% Local (Air-Gapped). No external API calls.
 *   **Reliability**: 99.9% Uptime. Graceful degradation if Model fails (fallback to human queue).
 
-### 5.3 Safety & Governance
+### 7.3 Safety & Governance
 *   **Kill Switch**: Physical/Software switch to disable all AI autonomy instantly.
 *   **Audit Trail**: Immutable log of Input Hash -> Prompt -> Output -> Verdict -> Human Decision.
 
 ---
 
-## 6. Risk Register & Controls
+## 8. Risk Register & Controls
 
 | Risk ID | Risk Description | Severity | Control Mechanism |
 | :--- | :--- | :--- | :--- |
@@ -93,7 +178,7 @@ $$ \text{ROI} = \frac{(\text{Hours Saved} \times \text{Analyst Rate}) - (\text{C
 
 ---
 
-## 7. Metrics & Instrumentation
+## 9. Metrics & Instrumentation
 
 ### Business KPIs
 *   **MTTR (Mean Time To Respond)**: Target < 10 mins.
@@ -110,7 +195,7 @@ $$ \text{ROI} = \frac{(\text{Hours Saved} \times \text{Analyst Rate}) - (\text{C
 
 ---
 
-## 8. Roadmap (Now / Next / Later)
+## 10. Roadmap (Now / Next / Later)
 
 ### Phase 1: The "Safe Brain" (Now - Days 0-30)
 *   **Focus**: Trust & Safety.
@@ -137,7 +222,7 @@ $$ \text{ROI} = \frac{(\text{Hours Saved} \times \text{Analyst Rate}) - (\text{C
 
 ---
 
-## 9. Decision Log
+## 11. Decision Log
 
 *   **Decision**: Use `GPT4All` (Local) instead of `GPT-4` (Cloud).
     *   **Why**: Security (Data Sovereignty) > Intelligence. We accept lower reasoning capability for absolute privacy.
@@ -148,7 +233,7 @@ $$ \text{ROI} = \frac{(\text{Hours Saved} \times \text{Analyst Rate}) - (\text{C
 
 ---
 
-## 10. Recommendation
+## 12. Recommendation
 
 **Proceed with "Controlled Autonomy" (Option B).**
 
