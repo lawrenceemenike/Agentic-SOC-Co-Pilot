@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "SOC Co-Pilot Security KPIs",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Prompt Injection Attempts",
+        "targets": [
+          {
+            "expr": "prompt_injection_attempts_total",
+            "legendFormat": "{{result}}"
+          }
+        ]
+      },
+      {
+        "type": "graph",
+        "title": "Agent Latency",
+        "targets": [
+          {
+            "expr": "rate(agent_latency_seconds_sum[5m]) / rate(agent_latency_seconds_count[5m])",
+            "legendFormat": "{{agent}}"
+          }
+        ]
+      },
+      {
+        "type": "gauge",
+        "title": "Approval Wait Time",
+        "targets": [
+          {
+            "expr": "approval_wait_seconds_sum / approval_wait_seconds_count"
+          }
+        ]
+      }
+    ]
+  }
+}
