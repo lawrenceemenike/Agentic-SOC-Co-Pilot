@@ -19,7 +19,7 @@ The **Secure Agentic SOC Co-Pilot** is a localized, autonomous security analysis
 
 ```mermaid
 graph TD
-    User[SOC Analyst] -->|HTTPS/Webhook| API[API Gateway (FastAPI)]
+    User["SOC Analyst"] -->|HTTPS/Webhook| API["API Gateway (FastAPI)"]
     
     subgraph "Core System (Air-Gapped)"
         API -->|Ingest| Orchestrator[LangGraph Orchestrator]
